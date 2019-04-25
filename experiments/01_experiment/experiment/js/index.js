@@ -8,8 +8,26 @@ function make_slides(f) {
      }
   });
 
-  slides.instructions = slide({
-    name : "instructions",
+  slides.instructions0 = slide({
+    name : "instructions0",
+    button : function() {
+      exp.go(); //use exp.go() if and only if there is no "present" data.
+    }
+  });
+  slides.instructions1 = slide({
+    name : "instructions1",
+    button : function() {
+      exp.go(); //use exp.go() if and only if there is no "present" data.
+    }
+  });
+  slides.instructions2 = slide({
+    name : "instructions2",
+    button : function() {
+      exp.go(); //use exp.go() if and only if there is no "present" data.
+    }
+  });
+  slides.instructions3 = slide({
+    name : "instructions3",
     button : function() {
       exp.go(); //use exp.go() if and only if there is no "present" data.
     }
@@ -292,7 +310,7 @@ function init() {
       screenUW: exp.width
     };
   //blocks of the experiment:
-  exp.structure=["i0", "instructions", "single_trial", "one_slider", "multi_slider", "vertical_sliders", 'subj_info', 'thanks'];
+  exp.structure=["i0", "instructions0", "instructions1", "instructions2", "instructions3", "single_trial", "one_slider", "multi_slider", "vertical_sliders", 'subj_info', 'thanks'];
 
   exp.data_trials = [];
   //make corresponding slides:
