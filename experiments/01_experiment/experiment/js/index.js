@@ -33,25 +33,25 @@ function make_slides(f) {
     }
   });
 
-  slides.single_trial = slide({
-    name: "single_trial",
-    start: function() {
-      $(".err").hide();
-      $(".display_condition").html("You are in " + exp.condition + ".");
-    },
-    button : function() {
-      response = $("#text_response").val();
-      if (response.length == 0) {
-        $(".err").show();
-      } else {
-        exp.data_trials.push({
-          "trial_type" : "single_trial",
-          "response" : response
-        });
-        exp.go(); //make sure this is at the *end*, after you log your data
-      }
-    },
-  });
+  // slides.single_trial = slide({
+  //   name: "single_trial",
+  //   start: function() {
+  //     $(".err").hide();
+  //     $(".display_condition").html("You are in " + exp.condition + ".");
+  //   },
+  //   button : function() {
+  //     response = $("#text_response").val();
+  //     if (response.length == 0) {
+  //       $(".err").show();
+  //     } else {
+  //       exp.data_trials.push({
+  //         "trial_type" : "single_trial",
+  //         "response" : response
+  //       });
+  //       exp.go(); //make sure this is at the *end*, after you log your data
+  //     }
+  //   },
+  // });
 
   slides.one_slider = slide({
     name : "one_slider",
@@ -103,160 +103,185 @@ function make_slides(f) {
     }
   });
 
-  slides.multi_slider = slide({
-    name : "multi_slider",
-    present : _.shuffle([
-      {"critter":"Wugs", "property":"fur"},
-      {"critter":"Blicks", "property":"fur"}
-    ]),
-    present_handle : function(stim) {
-      $(".err").hide();
-      this.stim = stim; //FRED: allows you to access stim in helpers
+  // slides.multi_slider = slide({
+  //   name : "multi_slider",
+  //   present : _.shuffle([
+  //     {"critter":"Wugs", "property":"fur"},
+  //     {"critter":"Blicks", "property":"fur"}
+  //   ]),
+  //   present_handle : function(stim) {
+  //     $(".err").hide();
+  //     this.stim = stim; //FRED: allows you to access stim in helpers
 
-      this.sentence_types = _.shuffle(["generic", "negation", "always", "sometimes", "usually"]);
-      var sentences = {
-        "generic": stim.critter + " have " + stim.property + ".",
-        "negation": stim.critter + " do not have " + stim.property + ".",
-        "always": stim.critter + " always have " + stim.property + ".",
-        "sometimes": stim.critter + " sometimes have " + stim.property + ".",
-        "usually": stim.critter + " usually have " + stim.property + "."
+  //     this.sentence_types = _.shuffle(["generic", "negation", "always", "sometimes", "usually"]);
+  //     var sentences = {
+  //       "generic": stim.critter + " have " + stim.property + ".",
+  //       "negation": stim.critter + " do not have " + stim.property + ".",
+  //       "always": stim.critter + " always have " + stim.property + ".",
+  //       "sometimes": stim.critter + " sometimes have " + stim.property + ".",
+  //       "usually": stim.critter + " usually have " + stim.property + "."
+  //     };
+
+  //     this.n_sliders = this.sentence_types.length;
+  //     $(".slider_row").remove();
+  //     for (var i=0; i<this.n_sliders; i++) {
+  //       var sentence_type = this.sentence_types[i];
+  //       var sentence = sentences[sentence_type];
+  //       $("#multi_slider_table").append('<tr class="slider_row"><td class="slider_target" id="sentence' + i + '">' + sentence + '</td><td colspan="2"><div id="slider' + i + '" class="slider">-------[ ]--------</div></td></tr>');
+  //       utils.match_row_height("#multi_slider_table", ".slider_target");
+  //     }
+
+  //     this.init_sliders(this.sentence_types);
+  //     exp.sliderPost = [];
+  //   },
+
+  //   button : function() {
+  //     if (exp.sliderPost.length < this.n_sliders) {
+  //       $(".err").show();
+  //     } else {
+  //       this.log_responses();
+  //       _stream.apply(this); //use _stream.apply(this); if and only if there is "present" data.
+  //     }
+  //   },
+
+  //   init_sliders : function(sentence_types) {
+  //     for (var i=0; i<sentence_types.length; i++) {
+  //       var sentence_type = sentence_types[i];
+  //       utils.make_slider("#slider" + i, this.make_slider_callback(i));
+  //     }
+  //   },
+  //   make_slider_callback : function(i) {
+  //     return function(event, ui) {
+  //       exp.sliderPost[i] = ui.value;
+  //     };
+  //   },
+  //   log_responses : function() {
+  //     for (var i=0; i<this.sentence_types.length; i++) {
+  //       var sentence_type = this.sentence_types[i];
+  //       exp.data_trials.push({
+  //         "trial_type" : "multi_slider",
+  //         "sentence_type" : sentence_type,
+  //         "response" : exp.sliderPost[i]
+  //       });
+  //     }
+  //   },
+  // });
+
+  // slides.vertical_sliders = slide({
+  //   name : "vertical_sliders",
+  //   present : _.shuffle([
+  //     {
+  //       "bins" : [
+  //         {
+  //           "min" : 0,
+  //           "max" : 10
+  //         },
+  //         {
+  //           "min" : 10,
+  //           "max" : 20
+  //         },
+  //         {
+  //           "min" : 20,
+  //           "max" : 30
+  //         },
+  //         {
+  //           "min" : 30,
+  //           "max" : 40
+  //         },
+  //         {
+  //           "min" : 40,
+  //           "max" : 50
+  //         },
+  //         {
+  //           "min" : 50,
+  //           "max" : 60
+  //         }
+  //       ],
+  //       "question": "How tall is tall?"
+  //     }
+  //   ]),
+  //   present_handle : function(stim) {
+  //     $(".err").hide();
+  //     this.stim = stim;
+
+  //     $("#vertical_question").html(stim.question);
+
+  //     $("#sliders").empty();
+  //     $("#bin_labels").empty();
+
+  //     $("#sliders").append('<td> \
+  //           <div id="slider_endpoint_labels"> \
+  //             <div class="top">likely</div> \
+  //             <div class="bottom">unlikely</div>\
+  //           </div>\
+  //         </td>')
+  //     $("#bin_labels").append('<td></td>')
+
+  //     this.n_sliders = stim.bins.length;
+  //     for (var i=0; i<stim.bins.length; i++) {
+  //       $("#sliders").append("<td><div id='vslider" + i + "' class='vertical_slider'>|</div></td>");
+  //       $("#bin_labels").append("<td class='bin_label'>" + stim.bins[i].min + " - " + stim.bins[i].max + "</td>");
+  //     }
+
+  //     this.init_sliders(stim);
+  //     exp.sliderPost = [];
+  //   },
+
+  //   button : function() {
+  //     if (exp.sliderPost.length < this.n_sliders) {
+  //       $(".err").show();
+  //     } else {
+  //       this.log_responses();
+  //       _stream.apply(this); //use _stream.apply(this); if and only if there is "present" data.
+  //     }
+  //   },
+
+  //   init_sliders : function(stim) {
+  //     for (var i=0; i<stim.bins.length; i++) {
+  //       utils.make_slider("#vslider" + i, this.make_slider_callback(i), "vertical");
+  //     }
+  //   },
+  //   make_slider_callback : function(i) {
+  //     return function(event, ui) {
+  //       exp.sliderPost[i] = ui.value;
+  //     };
+  //   },
+  //   log_responses : function() {
+  //     for (var i=0; i<this.stim.bins.length; i++) {
+  //       exp.data_trials.push({
+  //         "trial_type" : "vertical_slider",
+  //         "question" : this.stim.question,
+  //         "response" : exp.sliderPost[i],
+  //         "min" : this.stim.bins[i].min,
+  //         "max" : this.stim.bins[i].max
+  //       });
+  //     }
+  //   },
+  // });
+
+  slides.background_info = slide({
+    name : "background_info",
+    continue : function(){
+      exp.background_data = {
+        // How often do you listen
+        listenfreq : $("#listenfreq").val(),
+        // What kind of music do you listen to
+        listentype : $("#listentype").val(),
+        // Do you play an instrument
+        doesplay : $("#doesplay").val(),
+        // If so, how many
+        instnum : $("#instnum").val(),
+        // What instrument(s) do you play
+        instname : $("#instname").val(),
+        // How long have you played
+        playtime : $("#playtime").val(),
+        // How often do you practice
+        practime : $("#practime").val(),
+        // How often do you perform
+        perftime : $("#perftime").val()
       };
-
-      this.n_sliders = this.sentence_types.length;
-      $(".slider_row").remove();
-      for (var i=0; i<this.n_sliders; i++) {
-        var sentence_type = this.sentence_types[i];
-        var sentence = sentences[sentence_type];
-        $("#multi_slider_table").append('<tr class="slider_row"><td class="slider_target" id="sentence' + i + '">' + sentence + '</td><td colspan="2"><div id="slider' + i + '" class="slider">-------[ ]--------</div></td></tr>');
-        utils.match_row_height("#multi_slider_table", ".slider_target");
-      }
-
-      this.init_sliders(this.sentence_types);
-      exp.sliderPost = [];
-    },
-
-    button : function() {
-      if (exp.sliderPost.length < this.n_sliders) {
-        $(".err").show();
-      } else {
-        this.log_responses();
-        _stream.apply(this); //use _stream.apply(this); if and only if there is "present" data.
-      }
-    },
-
-    init_sliders : function(sentence_types) {
-      for (var i=0; i<sentence_types.length; i++) {
-        var sentence_type = sentence_types[i];
-        utils.make_slider("#slider" + i, this.make_slider_callback(i));
-      }
-    },
-    make_slider_callback : function(i) {
-      return function(event, ui) {
-        exp.sliderPost[i] = ui.value;
-      };
-    },
-    log_responses : function() {
-      for (var i=0; i<this.sentence_types.length; i++) {
-        var sentence_type = this.sentence_types[i];
-        exp.data_trials.push({
-          "trial_type" : "multi_slider",
-          "sentence_type" : sentence_type,
-          "response" : exp.sliderPost[i]
-        });
-      }
-    },
-  });
-
-  slides.vertical_sliders = slide({
-    name : "vertical_sliders",
-    present : _.shuffle([
-      {
-        "bins" : [
-          {
-            "min" : 0,
-            "max" : 10
-          },
-          {
-            "min" : 10,
-            "max" : 20
-          },
-          {
-            "min" : 20,
-            "max" : 30
-          },
-          {
-            "min" : 30,
-            "max" : 40
-          },
-          {
-            "min" : 40,
-            "max" : 50
-          },
-          {
-            "min" : 50,
-            "max" : 60
-          }
-        ],
-        "question": "How tall is tall?"
-      }
-    ]),
-    present_handle : function(stim) {
-      $(".err").hide();
-      this.stim = stim;
-
-      $("#vertical_question").html(stim.question);
-
-      $("#sliders").empty();
-      $("#bin_labels").empty();
-
-      $("#sliders").append('<td> \
-            <div id="slider_endpoint_labels"> \
-              <div class="top">likely</div> \
-              <div class="bottom">unlikely</div>\
-            </div>\
-          </td>')
-      $("#bin_labels").append('<td></td>')
-
-      this.n_sliders = stim.bins.length;
-      for (var i=0; i<stim.bins.length; i++) {
-        $("#sliders").append("<td><div id='vslider" + i + "' class='vertical_slider'>|</div></td>");
-        $("#bin_labels").append("<td class='bin_label'>" + stim.bins[i].min + " - " + stim.bins[i].max + "</td>");
-      }
-
-      this.init_sliders(stim);
-      exp.sliderPost = [];
-    },
-
-    button : function() {
-      if (exp.sliderPost.length < this.n_sliders) {
-        $(".err").show();
-      } else {
-        this.log_responses();
-        _stream.apply(this); //use _stream.apply(this); if and only if there is "present" data.
-      }
-    },
-
-    init_sliders : function(stim) {
-      for (var i=0; i<stim.bins.length; i++) {
-        utils.make_slider("#vslider" + i, this.make_slider_callback(i), "vertical");
-      }
-    },
-    make_slider_callback : function(i) {
-      return function(event, ui) {
-        exp.sliderPost[i] = ui.value;
-      };
-    },
-    log_responses : function() {
-      for (var i=0; i<this.stim.bins.length; i++) {
-        exp.data_trials.push({
-          "trial_type" : "vertical_slider",
-          "question" : this.stim.question,
-          "response" : exp.sliderPost[i],
-          "min" : this.stim.bins[i].min,
-          "max" : this.stim.bins[i].max
-        });
-      }
-    },
+      exp.go(); //use exp.go() if and only if there is no "present" data.
+    }
   });
 
   slides.subj_info =  slide({
@@ -264,14 +289,23 @@ function make_slides(f) {
     submit : function(e){
       //if (e.preventDefault) e.preventDefault(); // I don't know what this means.
       exp.subj_data = {
+        // Primary language
         language : $("#language").val(),
+        // How fun was the hit
         enjoyment : $("#enjoyment").val(),
+        // Did you do the hit right
         asses : $('input[name="assess"]:checked').val(),
+        // Age
         age : $("#age").val(),
+        // Gender
         gender : $("#gender").val(),
+        // Education level
         education : $("#education").val(),
+        // Any other comments
         comments : $("#comments").val(),
+        // Any problems with the hit
         problems: $("#problems").val(),
+        // What would be a fair price for the hit
         fairprice: $("#fairprice").val()
       };
       exp.go(); //use exp.go() if and only if there is no "present" data.
@@ -286,6 +320,7 @@ function make_slides(f) {
           "catch_trials" : exp.catch_trials,
           "system" : exp.system,
           "condition" : exp.condition,
+          "background_information" : exp.background_data,
           "subject_information" : exp.subj_data,
           "time_in_minutes" : (Date.now() - exp.startT)/60000
       };
@@ -310,7 +345,7 @@ function init() {
       screenUW: exp.width
     };
   //blocks of the experiment:
-  exp.structure=["i0", "instructions0", "instructions1", "instructions2", "instructions3", "single_trial", "one_slider", "multi_slider", "vertical_sliders", 'subj_info', 'thanks'];
+  exp.structure=["i0", "instructions0", "instructions1", "instructions2", "instructions3", "one_slider", "background_info", "subj_info", "thanks"];
 
   exp.data_trials = [];
   //make corresponding slides:
