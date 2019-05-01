@@ -71,13 +71,27 @@ Otherwise, modified to whatever is required for you given your affiliation.
     <div class="slide" id="instructions1">
         <h3>Instructions</h3>
         <p>This is an example of a rhythm that is not syncopated at all.</p>
-        <button onclick="_s.button()">Continue</button>
+        <button id="continue_button" onclick="_s.button()">Continue</button>
+        <div id="audio_container">
+            <audio autoplay id="audio_player"> 
+                <source src="audio/nonsync.ogg" id="audio_src_ogg" type="audio/ogg"> 
+                <source src="audio/nonsync.wav" id="audio_src_wav" type="audio/wav"> 
+                Your browser does not support the audio element. 
+            </audio>
+        </div> 
     </div>
 
     <div class="slide" id="instructions2">
         <h3>Instructions</h3>
         <p>And this is an example of a very syncopated rhythm.</p>
-        <button onclick="_s.button()">Continue</button>
+        <button id="continue_button" onclick="_s.button()">Continue</button>
+        <div id="audio_container">
+            <audio autoplay id="audio_player"> 
+                <source src="audio/maxsync.ogg" id="audio_src_ogg" type="audio/ogg"> 
+                <source src="audio/maxsync.wav" id="audio_src_wav" type="audio/wav"> 
+                Your browser does not support the audio element. 
+            </audio>
+        </div> 
     </div>
 
     <div class="slide" id="instructions3">
@@ -102,7 +116,7 @@ Otherwise, modified to whatever is required for you given your affiliation.
             <tr><td class="left">Not syncopated</td><td class="right">Very syncopated</td></tr>
             <tr><td colspan="2"><div id="single_slider" class="slider"></div></td></tr>
         </table>
-        <button onclick="_s.button()">Continue</button>
+        <button id="continue_button" onclick="_s.button()">Continue</button>
         <div class="err">Please adjust the slider before continuing.</div>
     </div>
 

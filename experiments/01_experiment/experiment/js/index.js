@@ -33,26 +33,6 @@ function make_slides(f) {
     }
   });
 
-  // slides.single_trial = slide({
-  //   name: "single_trial",
-  //   start: function() {
-  //     $(".err").hide();
-  //     $(".display_condition").html("You are in " + exp.condition + ".");
-  //   },
-  //   button : function() {
-  //     response = $("#text_response").val();
-  //     if (response.length == 0) {
-  //       $(".err").show();
-  //     } else {
-  //       exp.data_trials.push({
-  //         "trial_type" : "single_trial",
-  //         "response" : response
-  //       });
-  //       exp.go(); //make sure this is at the *end*, after you log your data
-  //     }
-  //   },
-  // });
-
   slides.one_slider = slide({
     name : "one_slider",
 
@@ -68,8 +48,8 @@ function make_slides(f) {
       this.stim = stim; //I like to store this information in the slide so I can record it later.
 
       // Get audio files
-      $("#audio_src_ogg").attr("src", 'audio/'+ stim.audio + '.ogg');
-      $("#audio_src_wav").attr("src", 'audio/'+ stim.audio + '.wav');
+      $("#audio_src_ogg").attr("src", 'audio/'+ stim.filename + '.ogg');
+      $("#audio_src_wav").attr("src", 'audio/'+ stim.filename + '.wav');
       this.init_sliders();
       exp.sliderPost = null; //erase current slider value
     },
@@ -95,9 +75,9 @@ function make_slides(f) {
     log_responses : function() {
       exp.data_trials.push({
         "trial_type" : "one_slider",
-        "filename" : stim.audio,
-        "fac1" : stim.fac1,
-        "fac2" : stim.fac2,
+        "filename" : this.stim.filename,
+        "fac1" : this.stim.fac1,
+        "fac2" : this.stim.fac2,
         "measured_sync" : exp.sliderPost
       });
     }
@@ -138,7 +118,7 @@ function make_slides(f) {
         // How fun was the hit
         enjoyment : $("#enjoyment").val(),
         // Did you do the hit right
-        asses : $('input[name="assess"]:checked').val(),
+        assess : $('input[name="assess"]:checked').val(),
         // Age
         age : $("#age").val(),
         // Gender
@@ -233,6 +213,11 @@ function init() {
       $("#start_button").click(function() {$("#mustaccept").show();});
       exp.go();
     }
+  });
+
+  $("#audio_player").bind("ended", function () {
+    $("#continue_button").show();
+    $("#slider_table").show();
   });
 
   exp.go(); //show first slide
