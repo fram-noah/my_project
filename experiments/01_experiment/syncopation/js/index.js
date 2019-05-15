@@ -48,9 +48,17 @@ function make_slides(f) {
       this.stim = stim; //I like to store this information in the slide so I can record it later.
 
       // Get audio files
-      $("#audio_src_ogg").attr("src", 'audio/'+ stim.filename + '.ogg');
-      $("#audio_src_wav").attr("src", 'audio/'+ stim.filename + '.wav');
-      this.init_sliders();
+      $("#audio_src_3_ogg").attr("src", 'audio/' + stim.filename + '.ogg');
+      $("#audio_src_3_wav").attr("src", 'audio/' + stim.filename + '.wav');
+      $("#audio_player_3").load();
+      $("#audio_player_3").trigger("play");
+      console.log($("#audio_src_3_wav").attr("src"));
+
+      // this.init_sliders();
+
+      // $("#audio_player_3").onended = function() {
+        this.init_sliders();
+      // }
       exp.sliderPost = null; //erase current slider value
     },
 
@@ -76,6 +84,14 @@ function make_slides(f) {
       exp.data_trials.push({
         "trial_type" : "one_slider",
         "filename" : this.stim.filename,
+        "wnbd1" : this.stim.wnbd1,
+        "wnbd2" : this.stim.wnbd2,
+        "wnbd4" : this.stim.wnbd4,
+        "wnbd8" : this.stim.wnbd8,
+        "lhl-fitch" : this.stim.lhlFitch,
+        "lhl-smith" : this.stim.lhlSmith,
+        "metComp" : this.stim.metComp,
+        "keith" : this.stim.keith,
         "fac1" : this.stim.fac1,
         "fac2" : this.stim.fac2,
         "measured_sync" : exp.sliderPost
@@ -163,12 +179,13 @@ function init() {
   exp.simple_stims = _.shuffle(simple_audio);
   exp.trials = [];
   exp.catch_trials = [];
+  exp.nQs = 37;
   // I'm not using between subjects conditions at all
   // exp.condition = _.sample(["condition 1", "condition 2"]); //can randomize between subject conditions here
   // Loop through all stimuli, add attention check low-syncopation rhythms at regular intervals
   var stim_index = 0;
   var simple_index = 0;
-  var block_size = 3;
+  var block_size = 6;
   var total_length = exp.audio_stims.length + exp.simple_stims.length;
   for (j = 0; j < total_length; j++) {
     // Check for location modulo XXXXX
@@ -204,6 +221,7 @@ function init() {
                     //relies on structure and slides being defined
 
   $('.slide').hide(); //hide everything
+  $('.progress').show();  //show progress bar
 
   //make sure turkers have accepted HIT (or you're not in mturk)
   $("#start_button").click(function() {
