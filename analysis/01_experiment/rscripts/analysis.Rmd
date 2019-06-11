@@ -1,0 +1,234 @@
+---
+title: 'Analysis for syncopation study'
+author: 'nfram'
+date: 'May 23, 2019'
+output: html_document
+---
+
+# Preliminary work
+
+## Clear workspace
+This just clears the existing variables from the workspace.
+```{r}
+rm(list=ls())
+```
+
+## Read in necessary libraries
+
+```{r}
+library(lme4)
+library(lmerTest)
+library(languageR)
+library(tidyverse)
+```
+
+## Set proper directory
+Note: make sure that this actually points to the right file path! It's a bit fragile and hacky...
+```{r}
+setwd('~/Documents/Research/Linguist_245b/my_project/analysis/01_experiment/rscripts/')
+```
+
+# Data import and rearrangement
+
+## Read in datasets
+Just import all the necessary data.
+
+```{r}
+sync_data = read.csv('../data/syncopation-trials.csv')
+background_data = read.csv('../data/syncopation-background_information.csv')
+worker_data = read.csv('../data/syncopation-subject_information.csv')
+head(sync_data)
+head(background_data)
+```
+
+And parse for experimental trials, not attention checks.
+```{r}
+sync_meas = inner_join(sync_data, background_data, by=c('workerid')) # Add background data by subject
+head(sync_meas)
+```
+
+## Parse to only real trials, not attention check
+```{r}
+test_sync_d = sync_meas[sync_meas$fac1 != -99,]
+catch_sync_data = sync_meas[sync_meas$fac1 == -99,]
+head(test_sync_d)
+head(catch_sync_data)
+ggplot(data = test_sync_d, aes(x = workerid, y = measured_sync)) +
+  geom_point(color = 'blue') +
+  geom_point(data = catch_sync_data, color = 'red')
+```
+
+## Exclude with weird attention check rhythms
+```{r}
+tsd2 = test_sync_d %>%
+  group_by(workerid)
+csd2 = catch_sync_data %>%
+  group_by(workerid)
+csd2 %>%
+  summarize(max_catch = max(measured_sync))
+test_mins = tsd2 %>%
+  summarize(min_test = min(measured_sync))
+head(test_mins)
+catch_update = left_join(csd2, test_mins)
+head(catch_update)
+c_u <- catch_update %>%
+  ungroup()
+c_u$measured_sync
+c_u$min_test
+c_u_v2 <- c_u %>%
+  mutate(Is_Valid = if_else(measured_sync <= min_test, 0, 1))
+head(c_u_v2)
+c_u_group <- c_u_v2 %>%
+  group_by(workerid)
+Num_Invalid <- c_u_group %>%
+  summarize(num_invalid = sum(Is_Valid))
+head(Num_Invalid)
+catch_groups <- left_join(tsd2, Num_Invalid)
+head(catch_groups)
+test_sync_data <- catch_groups[catch_groups$num_invalid < 2,]
+
+```
+## Convert doesplay, perftime, playtime, and listenfreq to categorical variables
+```{r}
+test_sync_data <- test_sync_data %>%
+  mutate(doesplay = recode(doesplay, '0'='No', '1'='Yes')) %>%
+  mutate(listenfreq = recode(listenfreq, '0' = 'Never', '1' = 'Rarely', '2'='Sometimes', '3'='Often', '4'='Daily')) %>%
+  mutate(perftime = recode(perftime, '0' = 'Never', '1' = 'Rarely', '2'='Sometimes', '3'='Often', '4'='Daily')) %>%
+  mutate(playtime = recode(playtime, '0' = 'Less than 6 months', '1' = '6-12 months', '2' = '1-2 years', '3' = '2-5 years', '4' = 'More than 5 years')) %>%
+  mutate(practime = recode(practime, '0' = 'Never', '1' = 'Rarely', '2'='Sometimes', '3'='Often', '4'='Daily'))
+```
+
+# Statistical analysis
+
+## Demographics
+Compute basic demographic statistics for:
+age | gender | doesPlay | playTime | listenType
+```{r}
+age_mean <- mean(worker_data$age)
+age_sd <- sd(worker_data$age)
+
+summary(worker_data$gender)
+
+summary(worker_data$fairprice)
+
+summary(background_data$instname)
+
+summary(worker_data)
+summary(background_data$doesplay)
+background_data %>%
+  filter(doesplay == 0) %>%
+  count()
+
+summary(background_data$listenfreq)
+freqtable_listen <- table(background_data$listenfreq) %>%
+  as.data.frame.table()
+head(freqtable_listen)
+
+freqtable <- table(background_data$listentype) %>%
+  as.data.frame.table()
+head(freqtable)
+
+ggplot(data = freqtable, aes(Var1, Freq)) +
+  geom_bar(stat='identity')
+
+ggplot(data = background_data, aes(fill=listentype)) +
+  geom_histogram()
+
+```
+
+## Univariate correlations
+These mimic the analysis performed by Smith and Honing (2006)
+```{r}
+m_lhlfitch = lm(measured_sync ~ lhl.fitch, data = test_sync_data)
+summary(m_lhlfitch)
+m_metcomp = lm(measured_sync ~ metComp, data = test_sync_data)
+summary(m_metcomp)
+m_wnbd1 = lm(measured_sync ~ wnbd1, data = test_sync_data)
+summary(m_wnbd1)
+
+ggplot(test_sync_data, aes(x=lhl.fitch, y=measured_sync)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  ylab('Measured syncopation rating') +
+  xlab('Longuet-Higgins and Lee syncopation')
+ggsave('lhl_sync_corr.png')
+
+ggplot(test_sync_data, aes(x=metComp, y=measured_sync)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  ylab('Measured syncopation rating') +
+  xlab('Metrical complexity')
+ggsave('metcomp_sync_corr.png')
+
+ggplot(test_sync_data, aes(x=wnbd1, y=measured_sync)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  ylab('Measured syncopation rating') +
+  xlab('Weighted note-to-beat distance (whole note)')
+ggsave('wnbd1_sync_corr.png')
+  
+```
+
+## Mixed models
+Mixed model using factor 1, factor 2, and conditional intercepts for play time, listening frequency, and performance time (as indices of musical engagement).
+```{r}
+m = lmer(measured_sync ~ (1|workerid) + (fac1 + fac2)*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML = F, control=lmerControl('Nelder_Mead'))
+summary(m)
+```
+
+And single-variable versions
+```{r}
+m1 = lmer(measured_sync ~ (1|workerid) + (fac1)*(doesplay + playtime + listenfreq), data = test_sync_data, REML = F, control=lmerControl('Nelder_Mead'))
+summary(m1)
+
+m2 = lmer(measured_sync ~ (1|workerid) + (fac2)*(doesplay + playtime + listenfreq), data = test_sync_data, REML = F, control=lmerControl('Nelder_Mead'))
+summary(m2)
+```
+
+## Structural equation model
+
+# Visualizations
+```{r}
+new_sync_data = test_sync_data %>%
+  mutate(dp_cat = recode(doesplay, '0'='No', '1'='Yes'))
+
+listen_sync_data = new_sync_data %>%
+  mutate(lf_cat = recode(listenfreq, '0' = 'Never', '1' = 'Rarely', '2'='Sometimes', '3'='Often', '4'='Daily'))
+
+summary(listen_sync_data$lf_cat)
+
+new_fac_data = new_sync_data %>%
+  gather(WhichFactor, FactorValue, fac1, fac2)
+head(new_fac_data)
+
+listen_fac_data = listen_sync_data %>%
+  gather(WhichFactor, FactorValue, fac1, fac2)
+head(listen_fac_data)
+
+vars <- c('Factor 1'='red', 'Factor2'='blue')
+
+p1 <- ggplot(subset(listen_fac_data, !is.na(lf_cat)), aes(x=FactorValue, y=measured_sync, color=WhichFactor)) +
+  geom_smooth(method = 'lm') +
+  facet_wrap(~lf_cat, labeller = label_bquote('Listens to music' : .(lf_cat))) +
+  xlab('Average z-score for each factor') +
+  ylab('Measured syncopation rating') +
+  labs(color = 'Component') +
+  scale_color_discrete(breaks = c('fac1','fac2'), labels = c('Density','Hierarchy'))
+
+p1
+
+ggsave('corr_by_listenfreq.png', width=8.1, height=5, units='in')
+
+ggsave('corr_by_doesplay.png')
+
+ggplot(subset(new_sync_data, !is.na(dp_cat)), aes(x=fac2, y=measured_sync, color=dp_cat)) +
+  geom_smooth(method='lm')
+
+ggplot(subset(test_sync_data, !is.na(doesplay)), aes(x=fac2, y=measured_sync)) +
+  geom_smooth(method='lm') +
+  facet_wrap(~doesplay)
+```
+
+```{r}
+ggplot(test_sync_data)
+```

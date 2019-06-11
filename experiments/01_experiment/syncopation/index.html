@@ -35,6 +35,19 @@
     <script src="js/stims.js"></script>
     <script src="js/index.js"></script>
 
+    <!-- Unique Turker -->
+    <script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        (function(){
+            var ut_id = "292a6bae3dfe3037f81d17e7aebc6a1a";
+            if (UTWorkerLimitReached(ut_id)) {
+                document.getElementById('mturk_form').style.display = 'none';
+                document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.";
+            }
+        })();
+    </script>
+
+
 
 <!-- Load consent form
 <script>
