@@ -20,6 +20,7 @@ library(lme4)
 library(lmerTest)
 library(languageR)
 library(tidyverse)
+library(lavaan)
 ```
 
 ## Set proper directory
@@ -86,7 +87,8 @@ head(Num_Invalid)
 catch_groups <- left_join(tsd2, Num_Invalid)
 head(catch_groups)
 test_sync_data <- catch_groups[catch_groups$num_invalid < 2,]
-
+head(test_sync_data)
+print(unique(test_sync_data$workerid))
 ```
 ## Convert doesplay, perftime, playtime, and listenfreq to categorical variables
 ```{r}
@@ -104,34 +106,37 @@ test_sync_data <- test_sync_data %>%
 Compute basic demographic statistics for:
 age | gender | doesPlay | playTime | listenType
 ```{r}
-age_mean <- mean(worker_data$age)
-age_sd <- sd(worker_data$age)
+print(worker_data$workerid)
+new_worker_data <- worker_data[worker_data$workerid %in% test_sync_data$workerid,]
+new_background_data <- background_data[background_data$workerid %in% test_sync_data$workerid,]
+age_mean <- mean(new_worker_data$age)
+age_sd <- sd(new_worker_data$age)
 
-summary(worker_data$gender)
+summary(new_worker_data$gender)
 
-summary(worker_data$fairprice)
+summary(new_worker_data$fairprice)
 
-summary(background_data$instname)
+summary(new_background_data$instname)
 
-summary(worker_data)
-summary(background_data$doesplay)
-background_data %>%
-  filter(doesplay == 0) %>%
+summary(new_worker_data)
+summary(new_background_data$doesplay)
+new_background_data %>%
+  filter(doesplay == 1) %>%
   count()
 
-summary(background_data$listenfreq)
-freqtable_listen <- table(background_data$listenfreq) %>%
+summary(new_background_data$listenfreq)
+freqtable_listen <- table(new_background_data$listenfreq) %>%
   as.data.frame.table()
 head(freqtable_listen)
 
-freqtable <- table(background_data$listentype) %>%
+freqtable <- table(new_background_data$listentype) %>%
   as.data.frame.table()
 head(freqtable)
 
 ggplot(data = freqtable, aes(Var1, Freq)) +
   geom_bar(stat='identity')
 
-ggplot(data = background_data, aes(fill=listentype)) +
+ggplot(data = new_background_data, aes(fill=listentype)) +
   geom_histogram()
 
 ```
@@ -170,6 +175,60 @@ ggsave('wnbd1_sync_corr.png')
 ```
 
 ## Mixed models
+Mixed models for each measure
+```{r}
+aic_fitch_lhl = lmer(measured_sync ~ (1|workerid) + lhl.fitch*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  logLik() %>%
+  AIC()
+b_fitch_lhl = lmer(measured_sync ~ (1|workerid) + lhl.fitch*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  fixef()
+
+aic_fitch_smith = lmer(measured_sync ~ (1|workerid) + lhl.smith*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  logLik() %>%
+  AIC()
+b_fitch_smith = lmer(measured_sync ~ (1|workerid) + lhl.smith*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  fixef()
+
+aic_metComp = lmer(measured_sync ~ (1|workerid) + metComp*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  logLik() %>%
+  AIC()
+b_metComp = lmer(measured_sync ~ (1|workerid) + metComp*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  fixef()
+
+aic_keith = lmer(measured_sync ~ (1|workerid) + keith*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  logLik() %>%
+  AIC()
+b_keith = lmer(measured_sync ~ (1|workerid) + keith*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  fixef()
+
+aic_wnbd1 = lmer(measured_sync ~ (1|workerid) + wnbd1*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  logLik() %>%
+  AIC()
+b_wnbd1 = lmer(measured_sync ~ (1|workerid) + wnbd1*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  fixef
+
+aic_wnbd2 = lmer(measured_sync ~ (1|workerid) + wnbd2*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  logLik() %>%
+  AIC()
+b_wnbd2 = lmer(measured_sync ~ (1|workerid) + wnbd2*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  fixef
+
+aic_wnbd4 = lmer(measured_sync ~ (1|workerid) + wnbd4*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  logLik() %>%
+  AIC()
+b_wnbd4 = lmer(measured_sync ~ (1|workerid) + wnbd4*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  fixef
+
+aic_wnbd8 = lmer(measured_sync ~ (1|workerid) + wnbd8*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  logLik() %>%
+  AIC()
+b_wnbd8 = lmer(measured_sync ~ (1|workerid) + wnbd8*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML=F, control=lmerControl('Nelder_Mead')) %>%
+  fixef
+
+aics <- c(aic_fitch_lhl, aic_fitch_smith, aic_keith, aic_metComp, aic_wnbd1, aic_wnbd2, aic_wnbd4, aic_wnbd8)
+aic_labs <- c('LHL - Fitch', 'LHL - Smith', 'Keith', 'Metrical complexity', 'WNBD-1', 'WNBD-2', 'WNBD-4', 'WNBD-8')
+```
+
 Mixed model using factor 1, factor 2, and conditional intercepts for play time, listening frequency, and performance time (as indices of musical engagement).
 ```{r}
 m = lmer(measured_sync ~ (1|workerid) + (fac1 + fac2)*(doesplay + playtime + listenfreq + practime), data = test_sync_data, REML = F, control=lmerControl('Nelder_Mead'))
@@ -186,6 +245,19 @@ summary(m2)
 ```
 
 ## Structural equation model
+```{r}
+sem_model <- '
+	# Measurement model
+	density =~ wnbd1 + wnbd2 + wnbd4 + wnbd8 + keith
+	hierarchy =~ lhl.smith + lhl.fitch + metComp
+	engagement =~ listenfreq + doesplay
+	# Regressions
+	measured_sync ~ density + hierarchy
+	# Residual correlations
+'
+fit <- sem(sem_model, data=test_sync_data)
+summary(fit, standardized=TRUE)
+```
 
 # Visualizations
 ```{r}
@@ -210,7 +282,7 @@ vars <- c('Factor 1'='red', 'Factor2'='blue')
 p1 <- ggplot(subset(listen_fac_data, !is.na(lf_cat)), aes(x=FactorValue, y=measured_sync, color=WhichFactor)) +
   geom_smooth(method = 'lm') +
   facet_wrap(~lf_cat, labeller = label_bquote('Listens to music' : .(lf_cat))) +
-  xlab('Average z-score for each factor') +
+  xlab('Average z-score for each component') +
   ylab('Measured syncopation rating') +
   labs(color = 'Component') +
   scale_color_discrete(breaks = c('fac1','fac2'), labels = c('Density','Hierarchy'))
@@ -219,7 +291,20 @@ p1
 
 ggsave('corr_by_listenfreq.png', width=8.1, height=5, units='in')
 
-ggsave('corr_by_doesplay.png')
+p2 <- ggplot(subset(listen_fac_data, !is.na(dp_cat)), aes(x=FactorValue, y=measured_sync, color=WhichFactor)) +
+  geom_smooth(method = 'lm') +
+  facet_wrap(~dp_cat, labeller = label_bquote('Plays an instrument' : .(dp_cat))) +
+  xlab('Average z-score for each component') +
+  ylab('Measured syncopation rating') +
+  labs(color = 'Component') +
+  scale_color_discrete(breaks = c('fac1','fac2'), labels = c('Density','Hierarchy'))
+
+p2
+
+ggsave('corr_by_doesplay.png', width=8.1, height=5, units='in')
+
+ggplot(listen_fac_data, aes(x=FactorValue, y=measured_sync, color=WhichFactor)) +
+  geom_smooth(method = 'lm')
 
 ggplot(subset(new_sync_data, !is.na(dp_cat)), aes(x=fac2, y=measured_sync, color=dp_cat)) +
   geom_smooth(method='lm')

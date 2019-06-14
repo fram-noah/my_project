@@ -1,0 +1,12 @@
+# SEM model
+
+```{r}
+sem_model <- '
+	# Measurement model
+	density =~ wnbd1 + wnbd2 + wnbd4 + wnbd8 + keith
+	hierarchy =~ lhl.smith + lhl.fitch + metComp
+	# Regressions
+	syncopation ~ 
+	# Residual correlations
+'
+```
